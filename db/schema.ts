@@ -6,6 +6,7 @@ export const profiles = sqliteTable("profiles", {
   userId: text("user_id").notNull(),
   handle: text("handle").notNull(),
   character: text("character").notNull(),
+  avatar: text("avatar").notNull().default("female-strategist"),
   xp: integer("xp").notNull().default(0),
   streak: integer("streak").notNull().default(1),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),

@@ -1,11 +1,11 @@
 "use client";
 
-import { BarChart3, BrainCircuit, Check, ChevronRight, Database, Flame, HeartPulse, LockKeyhole, LogOut, Medal, Menu, Play, ShieldCheck, Sparkles, Swords, Trophy, UserRound, X, Zap } from "lucide-react";
+import { BarChart3, BrainCircuit, Check, ChevronRight, Database, Flame, HeartPulse, Home, LockKeyhole, LogOut, Map, Medal, Menu, Play, ScrollText, ShieldCheck, Sparkles, Swords, Trophy, UserRound, X, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type CharacterId = "strategist" | "analyst" | "engineer" | "guardian";
 type User = { displayName: string; email: string } | null;
-type Profile = { handle: string; character: CharacterId; xp: number; streak: number };
+type Profile = { handle: string; character: CharacterId; avatar: string; xp: number; streak: number };
 type BoardRow = Profile & { rank: number; level: number; isNpc?: boolean };
 
 const characters = [
@@ -14,6 +14,19 @@ const characters = [
   { id: "engineer" as const, name: "AI 공학자", role: "Python · AI", icon: Zap, color: "#5de4dc", perk: "실습 퀘스트 XP +10%" },
   { id: "guardian" as const, name: "운영 수호자", role: "병원 경영 적용", icon: HeartPulse, color: "#ffbe55", perk: "프로젝트 XP +10%" },
 ];
+
+const avatars = [
+  { id: "female-strategist", name: "서린", gender: "여성", character: "strategist" as const, image: "/avatars/female-strategist.png" },
+  { id: "female-guardian", name: "리아", gender: "여성", character: "guardian" as const, image: "/avatars/female-guardian.png" },
+  { id: "female-analyst", name: "수안", gender: "여성", character: "analyst" as const, image: "/avatars/female-analyst.png" },
+  { id: "female-engineer", name: "카엘", gender: "여성", character: "engineer" as const, image: "/avatars/female-engineer.png" },
+  { id: "male-strategist", name: "시온", gender: "남성", character: "strategist" as const, image: "/avatars/male-strategist.png" },
+  { id: "male-analyst", name: "온유", gender: "남성", character: "analyst" as const, image: "/avatars/male-analyst.png" },
+  { id: "male-guardian", name: "건우", gender: "남성", character: "guardian" as const, image: "/avatars/male-guardian.png" },
+  { id: "male-engineer", name: "지한", gender: "남성", character: "engineer" as const, image: "/avatars/male-engineer.png" },
+];
+
+const avatarPath = (id?: string) => avatars.find(item => item.id === id)?.image ?? avatars[0].image;
 
 const worlds = [
   { id: 1, title: "사고의 숲", weeks: "1–8주", icon: BrainCircuit, color: "#7c9cff", topics: "논리 · 확률 · 문제 구조화", status: "current" },
@@ -31,11 +44,11 @@ const quests = [
 ];
 
 const npcRows: BoardRow[] = [
-  { rank: 1, handle: "논리기사", character: "strategist", xp: 4860, streak: 19, level: 9, isNpc: true },
-  { rank: 2, handle: "데이터별", character: "analyst", xp: 4210, streak: 14, level: 8, isNpc: true },
-  { rank: 3, handle: "AI연금술사", character: "engineer", xp: 3790, streak: 11, level: 8, isNpc: true },
-  { rank: 4, handle: "병목추적자", character: "guardian", xp: 3150, streak: 9, level: 7, isNpc: true },
-  { rank: 5, handle: "가설탐험가", character: "strategist", xp: 2640, streak: 7, level: 6, isNpc: true },
+  { rank: 1, handle: "논리기사", character: "strategist", avatar: "male-strategist", xp: 4860, streak: 19, level: 10, isNpc: true },
+  { rank: 2, handle: "데이터별", character: "analyst", avatar: "female-analyst", xp: 4210, streak: 14, level: 9, isNpc: true },
+  { rank: 3, handle: "AI연금술사", character: "engineer", avatar: "female-engineer", xp: 3790, streak: 11, level: 8, isNpc: true },
+  { rank: 4, handle: "병목추적자", character: "guardian", avatar: "male-guardian", xp: 3150, streak: 9, level: 7, isNpc: true },
+  { rank: 5, handle: "가설탐험가", character: "strategist", avatar: "female-strategist", xp: 2640, streak: 7, level: 6, isNpc: true },
 ];
 
 const getLevel = (xp: number) => Math.floor(xp / 500) + 1;
@@ -44,6 +57,7 @@ const getLevelProgress = (xp: number) => (xp % 500) / 5;
 export default function QuestGame({ user, signInPath, signOutPath }: { user: User; signInPath: string; signOutPath: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [leaderboard, setLeaderboard] = useState<BoardRow[]>(npcRows);
+  const [myRank, setMyRank] = useState<BoardRow | null>(null);
   const [filter, setFilter] = useState<"all" | CharacterId>("all");
   const [activeQuest, setActiveQuest] = useState<(typeof quests)[number] | null>(null);
   const [answer, setAnswer] = useState<number | null>(null);
@@ -51,22 +65,28 @@ export default function QuestGame({ user, signInPath, signOutPath }: { user: Use
   const [showSetup, setShowSetup] = useState(false);
   const [handle, setHandle] = useState("");
   const [character, setCharacter] = useState<CharacterId>("strategist");
+  const [avatar, setAvatar] = useState("female-strategist");
   const [tab, setTab] = useState<"map" | "quests" | "rank">("map");
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/profile").then(r => r.ok ? r.json() : null).then(data => { if (data?.profile) setProfile(data.profile); else if (user) setShowSetup(true); }).catch(() => undefined);
-    fetch("/api/leaderboard").then(r => r.ok ? r.json() : null).then(data => { if (data?.rows?.length) setLeaderboard([...data.rows, ...npcRows].sort((a, b) => b.xp - a.xp).map((r, i) => ({ ...r, rank: i + 1 }))); }).catch(() => undefined);
+    fetch("/api/profile").then(r => r.ok ? r.json() : null).then(data => { if (data?.profile) { setProfile(data.profile); setAvatar(data.profile.avatar ?? "female-strategist"); setCharacter(data.profile.character); } else if (user) setShowSetup(true); }).catch(() => undefined);
+    fetch("/api/leaderboard").then(r => r.ok ? r.json() : null).then(data => {
+      const merged = [...(data?.rows ?? []), ...npcRows].sort((a, b) => b.xp - a.xp).map((row, index) => ({ ...row, rank: index + 1, level: getLevel(row.xp) }));
+      setLeaderboard(merged);
+      if (data?.me) setMyRank({ ...data.me, rank: merged.filter(row => row.xp > data.me.xp).length + 1, level: getLevel(data.me.xp) });
+    }).catch(() => undefined);
   }, [user]);
 
   const visibleBoard = useMemo(() => leaderboard.filter(row => filter === "all" || row.character === filter).slice(0, 7), [leaderboard, filter]);
   const level = getLevel(profile?.xp ?? 0);
   const nextQuest = quests.find(q => !completed.includes(q.id)) ?? quests[0];
+  const currentStage = completed.length >= 3 ? "데이터 광산" : "사고의 숲";
 
   async function saveProfile() {
     if (!handle.trim()) return setNotice("모험가 이름을 입력해 주세요.");
-    const draft = { handle: handle.trim().slice(0, 14), character, xp: profile?.xp ?? 0, streak: profile?.streak ?? 1 };
+    const draft = { handle: handle.trim().slice(0, 14), character, avatar, xp: profile?.xp ?? 0, streak: profile?.streak ?? 1 };
     setProfile(draft); setShowSetup(false);
     const response = await fetch("/api/profile", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) }).catch(() => null);
     setNotice(response?.ok ? "캐릭터가 생성되었습니다! 첫 퀘스트를 시작하세요." : "체험 모드로 시작했습니다. 로그인하면 기기 간 동기화됩니다.");
@@ -82,35 +102,45 @@ export default function QuestGame({ user, signInPath, signOutPath }: { user: Use
   }
 
   const begin = () => profile ? setActiveQuest(nextQuest) : user ? setShowSetup(true) : location.assign(signInPath);
+  const goTo = (id: string, nextTab?: "map" | "quests" | "rank") => { if (nextTab) setTab(nextTab); setMenuOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
   return <main className="app-shell">
     <header className="topbar">
-      <button className="brand" onClick={() => setTab("map")} aria-label="홈으로"><span className="brand-mark"><Swords size={20}/></span><span>AI QUEST</span><b>ACADEMY</b></button>
+      <button className="brand" onClick={() => goTo("home", "map")} aria-label="홈으로"><span className="brand-mark"><Swords size={20}/></span><span>AI QUEST</span><b>ACADEMY</b></button>
       <nav className={menuOpen ? "nav-links open" : "nav-links"} aria-label="주 메뉴">
-        {([['map','월드맵'],['quests','퀘스트'],['rank','랭킹']] as const).map(([id,label]) => <button key={id} className={tab === id ? "active" : ""} onClick={() => { setTab(id); setMenuOpen(false); }}>{label}</button>)}
+        {([['map','월드맵','map'],['quests','퀘스트','quests'],['rank','랭킹','rank']] as const).map(([id,label,target]) => <button key={id} className={tab === id ? "active" : ""} onClick={() => goTo(target, id)}>{label}</button>)}
       </nav>
-      <div className="top-actions">{profile && <div className="mini-xp"><Zap size={15}/> Lv.{level} <span>{profile.xp.toLocaleString()} XP</span></div>}{user ? <a className="ghost-button" href={signOutPath} title="로그아웃"><LogOut size={18}/><span>로그아웃</span></a> : <a className="login-button" href={signInPath} target="_top"><UserRound size={17}/> 로그인</a>}<button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label="메뉴"><Menu/></button></div>
+      <div className="top-actions"><div className="status-hud" aria-label="현재 학습 상태"><span><small>LEVEL</small><strong>{level}</strong></span><span><small>XP</small><strong>{(profile?.xp ?? 0).toLocaleString()}</strong></span><span><small>STAGE</small><strong>{currentStage}</strong></span></div>{user ? <a className="ghost-button" href={signOutPath} title="로그아웃"><LogOut size={18}/><span>로그아웃</span></a> : <a className="login-button" href={signInPath} target="_top"><UserRound size={17}/> 로그인</a>}<button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label="메뉴"><Menu/></button></div>
     </header>
 
-    <section className="hero-panel">
-      <div className="hero-copy"><div className="eyebrow"><span/> SEASON 01 · 52주 성장 원정대</div><h1>생각을 무기로,<br/><em>데이터를 마법으로.</em></h1><p>병원 경영 현장의 문제를 풀며 논리·통계·SQL·Python·AI를 차례로 정복하세요. 매주 작은 승리가 실력과 레벨을 함께 키웁니다.</p><div className="hero-actions"><button className="primary-button" onClick={begin}><Play size={18} fill="currentColor"/> {profile ? "오늘의 퀘스트" : "모험 시작하기"}</button><button className="secondary-button" onClick={() => setTab("map")}>커리큘럼 보기 <ChevronRight size={18}/></button></div><div className="hero-trust"><ShieldCheck size={16}/> 평일 1시간 + 주말 3시간 · 업무 사례 중심 · 주차별 체크포인트</div></div>
+    <section className="hero-panel" id="home">
+      <div className="hero-copy"><div className="eyebrow"><span/> SEASON 01 · 52주 성장 원정대</div><h1>생각을 무기로,<br/><em>데이터를 마법으로.</em></h1><p>병원 경영 현장의 문제를 풀며 논리·통계·SQL·Python·AI를 차례로 정복하세요. 매주 작은 승리가 실력과 레벨을 함께 키웁니다.</p><div className="hero-actions"><button className="primary-button" onClick={begin}><Play size={18} fill="currentColor"/> {profile ? "오늘의 퀘스트" : "모험 시작하기"}</button><button className="secondary-button" onClick={() => goTo("map", "map")}>커리큘럼 보기 <ChevronRight size={18}/></button></div><div className="hero-trust"><ShieldCheck size={16}/> 평일 1시간 + 주말 3시간 · 업무 사례 중심 · 주차별 체크포인트</div></div>
       <div className="party-art" aria-label="전략가, 분석술사, AI 공학자, 운영 수호자 캐릭터 파티"><img src="/quest-party.png" alt="네 명의 AI 학습 RPG 캐릭터"/><div className="party-badge"><span>현재 모험가</span><strong>{profile?.handle ?? "캐릭터를 선택하세요"}</strong></div></div>
     </section>
 
+    <span className="section-anchor" id="profile"/>
     <section className="dashboard-grid">
       <article className="progress-card"><div className="card-heading"><div><span className="section-kicker">MY PROGRESS</span><h2>{profile ? `${profile.handle}의 성장 기록` : "당신의 모험 기록"}</h2></div><Flame className="flame"/></div><div className="progress-body"><div className="level-orb"><span>LV</span><strong>{level}</strong><small>{characters.find(c => c.id === profile?.character)?.name ?? "새싹 모험가"}</small></div><div className="xp-area"><div className="xp-label"><strong>{profile?.xp ?? 0} XP</strong><span>다음 레벨까지 {500 - ((profile?.xp ?? 0) % 500)} XP</span></div><div className="xp-track"><span style={{ width: `${getLevelProgress(profile?.xp ?? 0)}%` }}/></div><div className="stat-row"><span><Flame size={17}/>연속 학습 <b>{profile?.streak ?? 0}일</b></span><span><Check size={17}/>완료 퀘스트 <b>{completed.length}개</b></span></div></div></div></article>
       <article className="daily-card"><div className="daily-icon"><BrainCircuit/></div><div><span className="section-kicker">TODAY&apos;S QUEST</span><h2>{nextQuest.title}</h2><p>{nextQuest.skill} · 약 {nextQuest.minutes}분</p></div><button onClick={() => profile ? setActiveQuest(nextQuest) : setShowSetup(true)} aria-label="오늘의 퀘스트 시작"><ChevronRight/></button></article>
     </section>
 
-    <section className="content-section"><div className="section-title"><div><span className="section-kicker">YEAR-LONG CAMPAIGN</span><h2>5개 월드, 52주 성장 지도</h2><p>기초 사고부터 고급 의사결정까지, 앞 단계가 다음 능력을 열어줍니다.</p></div><span className="season-progress">시즌 진행도 <b>{completed.length}%</b></span></div><div className="world-map">{worlds.map((world,index) => { const Icon=world.icon; return <div className={`world ${world.status}`} key={world.id}><div className="world-node" style={{"--world":world.color} as React.CSSProperties}>{world.status === "locked" ? <LockKeyhole/> : <Icon/>}</div>{index < worlds.length-1 && <span className="world-line"/>}<small>{world.weeks}</small><h3>{world.title}</h3><p>{world.topics}</p></div>})}</div></section>
+    <section className="content-section" id="map"><div className="section-title"><div><span className="section-kicker">YEAR-LONG CAMPAIGN</span><h2>5개 월드, 52주 성장 지도</h2><p>기초 사고부터 고급 의사결정까지, 앞 단계가 다음 능력을 열어줍니다.</p></div><span className="season-progress">시즌 진행도 <b>{completed.length}%</b></span></div><div className="world-map">{worlds.map((world,index) => { const Icon=world.icon; return <div className={`world ${world.status}`} key={world.id}><div className="world-node" style={{"--world":world.color} as React.CSSProperties}>{world.status === "locked" ? <LockKeyhole/> : <Icon/>}</div>{index < worlds.length-1 && <span className="world-line"/>}<small>{world.weeks}</small><h3>{world.title}</h3><p>{world.topics}</p></div>})}</div></section>
 
-    <section className="two-column"><div className="quest-list-panel"><div className="section-title compact"><div><span className="section-kicker">ACTIVE MISSIONS</span><h2>이번 챕터 퀘스트</h2></div><button onClick={() => setTab("quests")}>전체 보기</button></div><div className="quest-list">{quests.slice(0,3).map((quest,i) => <button className="quest-row" key={quest.id} onClick={() => profile ? setActiveQuest(quest) : setShowSetup(true)}><span className={`quest-number ${completed.includes(quest.id) ? "done" : ""}`}>{completed.includes(quest.id) ? <Check/> : i+1}</span><span className="quest-main"><b>{quest.title}</b><small>{quest.skill} · {quest.minutes}분</small></span><span className="difficulty">{quest.difficulty}</span><strong className="xp-reward">+{quest.xp} XP</strong><ChevronRight size={18}/></button>)}</div></div>
-      <div className="ranking-panel"><div className="section-title compact"><div><span className="section-kicker">HALL OF FAME</span><h2>캐릭터 랭킹</h2></div><Medal/></div><div className="rank-filters"><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>전체</button>{characters.map(c => <button key={c.id} className={filter === c.id ? "active" : ""} onClick={() => setFilter(c.id)} title={c.name}><c.icon size={16}/></button>)}</div><div className="rank-list">{visibleBoard.map(row => { const C=characters.find(c => c.id===row.character)!; return <div className="rank-row" key={`${row.handle}-${row.rank}`}><b className={`rank rank-${row.rank}`}>{row.rank}</b><span className="rank-avatar" style={{color:C.color}}><C.icon/></span><span><strong>{row.handle}</strong><small>{C.name} · Lv.{row.level}</small></span><em>{row.xp.toLocaleString()} XP</em></div>})}</div></div>
+    <section className="two-column"><div className="quest-list-panel" id="quests"><div className="section-title compact"><div><span className="section-kicker">ACTIVE MISSIONS</span><h2>이번 챕터 퀘스트</h2></div><button onClick={() => goTo("quests", "quests")}>전체 보기</button></div><div className="quest-list">{quests.slice(0,3).map((quest,i) => <button className="quest-row" key={quest.id} onClick={() => profile ? setActiveQuest(quest) : setShowSetup(true)}><span className={`quest-number ${completed.includes(quest.id) ? "done" : ""}`}>{completed.includes(quest.id) ? <Check/> : i+1}</span><span className="quest-main"><b>{quest.title}</b><small>{quest.skill} · {quest.minutes}분</small></span><span className="difficulty">{quest.difficulty}</span><strong className="xp-reward">+{quest.xp} XP</strong><ChevronRight size={18}/></button>)}</div></div>
+      <div className="ranking-panel" id="rank"><div className="section-title compact"><div><span className="section-kicker">HALL OF FAME</span><h2>캐릭터 랭킹</h2></div><Medal/></div><div className="rank-filters"><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>전체</button>{characters.map(c => <button key={c.id} className={filter === c.id ? "active" : ""} onClick={() => setFilter(c.id)} title={c.name}><c.icon size={16}/></button>)}</div><div className="rank-list">{visibleBoard.map(row => { const C=characters.find(c => c.id===row.character)!; return <div className="rank-row" key={`${row.handle}-${row.rank}`}><b className={`rank rank-${row.rank}`}>{row.rank}</b><span className="rank-avatar"><img src={avatarPath(row.avatar)} alt=""/></span><span><strong>{row.handle}</strong><small>{C.name} · Lv.{row.level}</small></span><em>{row.xp.toLocaleString()} XP</em></div>})}</div><div className="my-rank-card">{myRank ? <><b>{myRank.rank}위</b><img src={avatarPath(myRank.avatar)} alt="내 캐릭터"/><span><small>MY RANK</small><strong>{myRank.handle}</strong><em>{characters.find(c => c.id === myRank.character)?.name} · Lv.{myRank.level}</em></span><strong>{myRank.xp.toLocaleString()} XP</strong></> : <p>{user ? "캐릭터를 만들면 내 순위가 표시됩니다." : "로그인하면 내 순위를 확인할 수 있습니다."}</p>}</div></div>
     </section>
 
     <footer><span><Swords size={17}/> AI QUEST ACADEMY</span><p>Domain Knowledge × Logical Thinking × Data × AI</p></footer>
 
-    {showSetup && <div className="modal-backdrop"><div className="setup-modal"><button className="close-button" onClick={() => setShowSetup(false)} aria-label="닫기"><X/></button><span className="section-kicker">CREATE YOUR HERO</span><h2>첫 캐릭터를 선택하세요</h2><p>직업마다 특정 퀘스트에서 10% 보너스 경험치를 얻습니다.</p><label className="field-label">모험가 이름<input value={handle} onChange={e => setHandle(e.target.value)} maxLength={14} placeholder="예: 데이터용사" autoFocus/></label><div className="character-grid">{characters.map(c => { const Icon=c.icon; return <button key={c.id} className={character===c.id ? "selected" : ""} onClick={() => setCharacter(c.id)} style={{"--char":c.color} as React.CSSProperties}><Icon/><b>{c.name}</b><span>{c.role}</span><small>{c.perk}</small></button>})}</div><button className="primary-button full" onClick={saveProfile}><Sparkles size={18}/> 이 캐릭터로 시작</button>{!user && <p className="auth-note"><LockKeyhole size={14}/> 저장과 랭킹 참여는 로그인 후 이용할 수 있습니다.</p>}</div></div>}
+    <nav className="bottom-nav" aria-label="빠른 이동">
+      <button onClick={() => goTo("home", "map")}><Home/><span>홈</span></button>
+      <button className={tab === "map" ? "active" : ""} onClick={() => goTo("map", "map")}><Map/><span>월드맵</span></button>
+      <button className={tab === "quests" ? "active" : ""} onClick={() => goTo("quests", "quests")}><ScrollText/><span>퀘스트</span></button>
+      <button className={tab === "rank" ? "active" : ""} onClick={() => goTo("rank", "rank")}><Trophy/><span>랭킹</span></button>
+      <button onClick={() => goTo("profile")}><UserRound/><span>내 성장</span></button>
+    </nav>
+
+    {showSetup && <div className="modal-backdrop"><div className="setup-modal avatar-setup"><button className="close-button" onClick={() => setShowSetup(false)} aria-label="닫기"><X/></button><span className="section-kicker">CREATE YOUR HERO</span><h2>나의 캐릭터를 선택하세요</h2><p>얼굴과 직업을 함께 고르세요. 직업마다 특정 퀘스트에서 10% 보너스 XP를 얻습니다.</p><label className="field-label">모험가 이름<input value={handle} onChange={e => setHandle(e.target.value)} maxLength={14} placeholder="예: 데이터용사" autoFocus/></label><div className="avatar-grid">{avatars.map(item => { const C=characters.find(c => c.id === item.character)!; return <button key={item.id} className={avatar===item.id ? "selected" : ""} onClick={() => { setAvatar(item.id); setCharacter(item.character); }} style={{"--char":C.color} as React.CSSProperties}><span className="avatar-image"><img src={item.image} alt={`${item.name} ${C.name} 캐릭터`}/><em>{item.gender}</em></span><b>{item.name}</b><strong>{C.name}</strong><small>{C.role}</small></button>})}</div><button className="primary-button full" onClick={saveProfile}><Sparkles size={18}/> 이 캐릭터로 시작</button>{!user && <p className="auth-note"><LockKeyhole size={14}/> 저장과 랭킹 참여는 로그인 후 이용할 수 있습니다.</p>}</div></div>}
 
     {activeQuest && <div className="modal-backdrop"><div className="quest-modal"><button className="close-button" onClick={() => {setActiveQuest(null);setAnswer(null)}} aria-label="닫기"><X/></button><div className="quest-modal-top"><span>WEEK {activeQuest.week}</span><em>+{activeQuest.xp} XP</em></div><h2>{activeQuest.title}</h2><p className="lesson-note"><b>핵심 원리</b> 큰 문제는 관찰 가능한 단위로 나누고, 각 단계에 측정값을 붙인 뒤 가장 큰 병목부터 검증합니다.</p><h3>{activeQuest.prompt}</h3><div className="answers">{activeQuest.choices.map((choice,i) => <button key={choice} onClick={() => setAnswer(i)} className={answer===i ? (i===activeQuest.answer ? "correct":"wrong") : ""}><span>{i+1}</span>{choice}{answer===i && i===activeQuest.answer && <Check/>}</button>)}</div>{answer!==null && <div className={answer===activeQuest.answer ? "feedback good":"feedback"}>{answer===activeQuest.answer ? activeQuest.feedback : "조금 아쉽네요. 문제를 측정 가능한 단계로 나누는 선택지를 다시 살펴보세요."}</div>}<button className="primary-button full" disabled={answer!==activeQuest.answer || completed.includes(activeQuest.id)} onClick={finishQuest}>{completed.includes(activeQuest.id) ? "완료한 퀘스트":"퀘스트 완료하고 XP 받기"}</button></div></div>}
     {notice && <button className="toast" onClick={() => setNotice("")}>{notice}<X size={15}/></button>}
