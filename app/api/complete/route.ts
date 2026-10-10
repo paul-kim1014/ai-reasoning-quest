@@ -3,13 +3,14 @@ import { getDb } from "../../../db";
 import { completions, profiles } from "../../../db/schema";
 import { getChatGPTUser } from "../../chatgpt-auth";
 
-const rewards: Record<string, number> = { q1: 80, q2: 90, q3: 110, q4: 130 };
-
 export async function POST(request: Request) {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
   const body = await request.json() as { questId?: string; xp?: number };
-  const base = body.questId ? rewards[body.questId] : undefined;
+  const match = body.questId?.match(/^d(\d{2})$/);
+  const day = match ? Number(match[1]) : 0;
+  const world = Math.ceil(day / 10);
+  const base = day >= 1 && day <= 50 ? 60 + (world - 1) * 10 + ((day - 1) % 5) * 5 : 0;
   if (!body.questId || !base) return Response.json({ error: "알 수 없는 퀘스트입니다." }, { status: 400 });
   const xp = Math.min(Math.max(Number(body.xp) || base, base), Math.ceil(base * 1.1));
   try {

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { profiles } from "../../../db/schema";
+import { completions, profiles } from "../../../db/schema";
 import { getChatGPTUser } from "../../chatgpt-auth";
 
 const allowed = new Set(["strategist", "analyst", "engineer", "guardian"]);
@@ -10,8 +10,12 @@ export async function GET() {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ profile: null }, { status: 401 });
   try {
-    const rows = await getDb().select().from(profiles).where(eq(profiles.userId, user.userId)).limit(1);
-    return Response.json({ profile: rows[0] ? { handle: rows[0].handle, character: rows[0].character, avatar: rows[0].avatar, xp: rows[0].xp, streak: rows[0].streak } : null });
+    const db = getDb();
+    const rows = await db.select().from(profiles).where(eq(profiles.userId, user.userId)).limit(1);
+    const done = await db.select({ questId: completions.questId }).from(completions).where(eq(completions.userId, user.userId));
+    const legacyMap: Record<string, string> = { q1: "d01", q2: "d04", q3: "d08", q4: "d17" };
+    const completionIds = [...new Set(done.map(row => legacyMap[row.questId] ?? row.questId))];
+    return Response.json({ profile: rows[0] ? { handle: rows[0].handle, character: rows[0].character, avatar: rows[0].avatar, xp: rows[0].xp, streak: rows[0].streak, rating: rows[0].rating, wins: rows[0].wins, losses: rows[0].losses } : null, completions: completionIds });
   } catch { return Response.json({ profile: null, error: "프로필을 불러오지 못했습니다." }, { status: 503 }); }
 }
 
