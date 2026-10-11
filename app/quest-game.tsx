@@ -87,6 +87,10 @@ export default function QuestGame({ user, signInPath, signOutPath }: { user: Use
   const [dailyOpen, setDailyOpen] = useState(false);
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("ref") === "share") setDailyOpen(true);
+  }, []);
+
+  useEffect(() => {
     fetch("/api/profile").then(r => r.ok ? r.json() as Promise<{ profile: Profile | null; completions: string[] }> : null).then(data => { if (data?.profile) { setProfile(data.profile); setCompleted(data.completions ?? []); setAvatar(data.profile.avatar ?? "female-strategist"); setCharacter(data.profile.character); } else if (user) setShowSetup(true); }).catch(() => undefined);
     fetch("/api/leaderboard").then(r => r.ok ? r.json() as Promise<{ rows: BoardRow[]; me?: BoardRow }> : null).then(data => {
       const merged = [...(data?.rows ?? []), ...npcRows].sort((a, b) => b.xp - a.xp).map((row, index) => ({ ...row, rank: index + 1, level: getLevel(row.xp) }));

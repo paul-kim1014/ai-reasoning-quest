@@ -62,3 +62,5 @@
 @media(max-width:1050px){.bottom-nav{display:grid}.app-shell{padding-bottom:104px}}
 @media(max-width:1050px){.menu-button{display:none}}
 @media(max-width:650px){.daily-modal{padding:24px 16px}.daily-modal h2{font-size:23px}.daily-prompt{font-size:16px}.daily-options button{font-size:13px}.daily-share{flex-direction:column}}
+@media(max-width:650px){.login-button{display:flex}}
+@media(max-width:420px){.status-hud>span:last-child{display:none}}
