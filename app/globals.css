@@ -12,7 +12,7 @@
 @media(max-width:650px){.topbar{height:72px;padding:0 10px}.brand>span:nth-child(2),.brand b,.login-button{display:none}.status-hud{margin-left:auto}.status-hud>span{min-width:43px;padding:5px 6px}.status-hud>span:last-child{min-width:77px}.status-hud strong{font-size:10px}.status-hud small{font-size:6px}.ghost-button{padding:8px;border:0}.menu-button{padding:4px}.avatar-grid{grid-template-columns:repeat(2,1fr);gap:8px}.avatar-setup{padding:24px 14px}.avatar-image{aspect-ratio:1/.95}.bottom-nav{bottom:8px;width:calc(100% - 18px);height:61px;border-radius:17px}.bottom-nav button svg{width:18px;height:18px}.my-rank-card{grid-template-columns:34px 38px 1fr}.my-rank-card>img{width:38px;height:38px}.my-rank-card>strong{display:none}}
 
 /* Learning-first answer feedback */
-.lesson-feedback{display:flex;flex-direction:column;gap:4px}.lesson-feedback b{color:#ffc2ca;font-size:11px}.result-backdrop{z-index:70;background:#030711ed}.answer-explanation-modal{width:min(680px,100%);max-height:92vh;overflow:auto;position:relative;padding:30px;border:1px solid #4f5f88;border-radius:22px;background:linear-gradient(145deg,#17213a,#0b1325);box-shadow:0 40px 110px #000b}.result-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:#163b36;color:#72e3d8;font-size:11px;font-weight:900}.result-badge svg{width:15px;height:15px}.answer-explanation-modal h2{margin:13px 0 8px;font-size:27px}.answer-summary{margin:0 0 18px;color:#b6c1d8;font-size:13px;line-height:1.7}.choice-comparison{display:flex;flex-direction:column;gap:9px;margin-bottom:19px}.comparison-row{display:grid;grid-template-columns:32px 1fr;gap:11px;padding:12px;border:1px solid #2d3955;border-radius:13px;background:#0d1528}.comparison-row>span{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#202b44;color:#8f9dbb;font-size:11px;font-weight:900}.comparison-row b{font-size:13px}.comparison-row p{margin:5px 0 0;color:#8f9bb4;font-size:11px;line-height:1.55}.comparison-row.correct-choice{border-color:#4bcfc2;background:#12312f}.comparison-row.correct-choice>span{background:#55d9ce;color:#071a19}.comparison-row.correct-choice>span svg{width:17px}.comparison-row.correct-choice b{color:#80e8df}.comparison-row.correct-choice p{color:#b8dcd8}
+.lesson-feedback{display:flex;flex-direction:column;gap:4px}.lesson-feedback b{color:#ffc2ca;font-size:11px}.choice-example{display:flex;gap:7px;align-items:baseline;margin:6px 0 0;padding-top:6px;border-top:1px solid #ffffff14;color:#b8c7df;font-size:11px;line-height:1.5}.choice-example strong{flex:0 0 auto;color:#70ddd3;font-size:10px}.result-backdrop{z-index:70;background:#030711ed}.answer-explanation-modal{width:min(680px,100%);max-height:92vh;overflow:auto;position:relative;padding:30px;border:1px solid #4f5f88;border-radius:22px;background:linear-gradient(145deg,#17213a,#0b1325);box-shadow:0 40px 110px #000b}.result-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:#163b36;color:#72e3d8;font-size:11px;font-weight:900}.result-badge svg{width:15px;height:15px}.answer-explanation-modal h2{margin:13px 0 8px;font-size:27px}.answer-summary{margin:0 0 18px;color:#b6c1d8;font-size:13px;line-height:1.7}.choice-comparison{display:flex;flex-direction:column;gap:9px;margin-bottom:19px}.comparison-row{display:grid;grid-template-columns:32px 1fr;gap:11px;padding:12px;border:1px solid #2d3955;border-radius:13px;background:#0d1528}.comparison-row>span{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#202b44;color:#8f9dbb;font-size:11px;font-weight:900}.comparison-row b{font-size:13px}.comparison-row p{margin:5px 0 0;color:#8f9bb4;font-size:11px;line-height:1.55}.comparison-row.correct-choice{border-color:#4bcfc2;background:#12312f}.comparison-row.correct-choice>span{background:#55d9ce;color:#071a19}.comparison-row.correct-choice>span svg{width:17px}.comparison-row.correct-choice b{color:#80e8df}.comparison-row.correct-choice p{color:#b8dcd8}
 @media(max-width:600px){.answer-explanation-modal{padding:24px 16px}.answer-explanation-modal h2{font-size:23px}.answer-summary{font-size:12px}.comparison-row{padding:10px}.comparison-row p{font-size:10px}}
 
 /* 10-week curriculum and BattleNet */
@@ -26,3 +26,39 @@
 /* One-screen tab navigation */
 .tab-screen{min-height:calc(100vh - 72px - 104px);padding-top:42px;animation:tabEnter .24s ease-out}.home-screen{padding-top:0}.hero-panel.hero-solo{display:block;min-height:390px;padding-top:76px;padding-bottom:42px}.hero-solo .hero-copy{max-width:760px}.hero-solo:after{right:0;top:-20%;width:70%;height:120%;background:radial-gradient(ellipse,#5547ff2e 0,#1fd8c913 40%,transparent 72%)}.home-dashboard{max-width:760px;margin:0 auto 50px;padding:0 24px}.profile-grid{display:block;max-width:920px;margin-bottom:40px}.single-panel-screen{width:min(760px,100%);margin:0 auto;padding-left:24px;padding-right:24px}.single-panel-screen .battle-panel,.single-panel-screen .ranking-panel{width:100%}.evolution-portrait{width:112px;height:124px}.content-section,.curriculum-panel{margin-bottom:24px}@keyframes tabEnter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(max-width:650px){.tab-screen{min-height:calc(100vh - 72px - 86px);padding-top:24px}.home-screen{padding-top:0}.hero-panel.hero-solo{min-height:330px;padding-top:48px;padding-bottom:24px}.home-dashboard{padding:0 14px;margin-bottom:24px}.single-panel-screen{padding-left:14px;padding-right:14px}.profile-grid{padding-left:14px;padding-right:14px}.evolution-portrait{width:88px;height:104px;border-radius:14px}.evolution-portrait>span{font-size:7px;padding:4px}.progress-card{padding:18px 16px}.progress-body{gap:12px}.evolution-roadmap{margin-top:13px}.home-dashboard .daily-card{padding:16px}}
+.daily-quick-card{border-color:#6b69c8;background:linear-gradient(110deg,#262252,#123b42)}
+.home-dashboard{display:grid;gap:12px}
+.bottom-nav{display:none}
+.app-shell{padding-bottom:0}
+.world.locked{opacity:.72}
+.world-preview{display:block;margin-top:8px;color:#b1bada;font-size:10px;line-height:1.6}
+.npc-label{display:inline-block;margin-left:4px;padding:2px 5px;border-radius:5px;background:#293454;color:#a9b9e2;font-size:8px;vertical-align:middle}
+.daily-backdrop{z-index:75}
+.daily-modal{position:relative;width:min(620px,100%);max-height:min(90vh,820px);overflow:auto;padding:30px;border:1px solid #4d5b85;border-radius:22px;background:linear-gradient(150deg,#192142,#0c162a 68%);box-shadow:0 35px 100px #000b}
+.daily-modal h2{font-size:27px;margin:8px 0 17px}
+.daily-progress{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#9daae0;font-size:12px;font-weight:900}
+.daily-progress div{display:flex;gap:5px;flex:1;max-width:220px}
+.daily-progress i{display:block;flex:1;height:6px;border-radius:8px;background:#2e3a5c}
+.daily-progress i.active{background:#70e1d9}
+.daily-prompt{font-size:19px;font-weight:800;line-height:1.55;margin:22px 0;word-break:keep-all}
+.daily-options{display:grid;gap:9px;margin-bottom:16px}
+.daily-options button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 15px;border:1px solid #3a496c;border-radius:12px;background:#17233b;text-align:left;line-height:1.5;cursor:pointer}
+.daily-options button span{flex:0 0 24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#344466;color:#fff;font-size:12px;font-weight:900}
+.daily-options button.correct{border-color:#68dac6;background:#173c3c}
+.daily-options button.wrong{border-color:#f48a97;background:#422433}
+.daily-options button:disabled{cursor:default}
+.daily-feedback{margin:0 0 17px;padding:14px;border:1px solid #3b5874;border-radius:12px;background:#17283c}
+.daily-feedback b{color:#82eadf;font-size:13px}
+.daily-feedback p{margin:7px 0;color:#d5dced;font-size:12px;line-height:1.55}
+.daily-feedback small{color:#b2c1dc;line-height:1.5}
+.daily-result{text-align:center;padding:20px 16px;border:1px solid #455585;border-radius:16px;background:linear-gradient(120deg,#29265b,#164148)}
+.daily-result div{font-size:43px;letter-spacing:.18em}
+.daily-result strong{display:block;font-size:37px;margin:6px 0}
+.daily-result p{font-size:12px;color:#c4d3e6;margin:0}
+.daily-message{text-align:center;color:#8ce9db;font-size:12px}
+.daily-share{display:flex;gap:10px;margin-top:18px}
+.daily-share>*{flex:1}
+.daily-login{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;width:100%;padding:12px;border:1px solid #6671a2;border-radius:12px;background:#1b2440;color:#e2e7f7;font-weight:800;font-size:12px;text-decoration:none;cursor:pointer}
+@media(max-width:1050px){.bottom-nav{display:grid}.app-shell{padding-bottom:104px}}
+@media(max-width:1050px){.menu-button{display:none}}
+@media(max-width:650px){.daily-modal{padding:24px 16px}.daily-modal h2{font-size:23px}.daily-prompt{font-size:16px}.daily-options button{font-size:13px}.daily-share{flex-direction:column}}
